@@ -1,0 +1,43 @@
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, classification_report
+
+# Load dataset (Replace with actual dataset path)
+data = pd.read_csv("credit_risk_data.csv")  # Assume dataset has columns like 'age', 'income', 'loan_amount', etc.
+
+# Preprocessing
+data.dropna(inplace=True)  # Handle missing values
+X = data.drop(columns=['default'])  # Features
+y = data['default']  # Target variable (1 = Default, 0 = No Default)
+
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Feature Scaling
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# Model Training
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+model.fit(X_train, y_train)
+
+# Predictions
+y_pred = model.predict(X_test)
+
+# Evaluation
+print("Accuracy:", accuracy_score(y_test, y_pred))
+print("Classification Report:\n", classification_report(y_test, y_pred))
+
+# Function for making predictions
+def predict_credit_risk(features):
+    features_scaled = scaler.transform([features])
+    prediction = model.predict(features_scaled)
+    return "High Risk" if prediction[0] == 1 else "Low Risk"
+
+# Example usage
+example_features = [30, 50000, 10000]  # Example input features (age, income, loan_amount)
+print("Predicted Credit Risk:", predict_credit_risk(example_features))
